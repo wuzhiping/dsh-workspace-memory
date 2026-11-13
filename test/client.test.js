@@ -53,8 +53,8 @@ test('client bundle registers hero, composer and dock entries', async () => {
   const names = registrations.map((entry) => entry.options.name)
   assert.deepEqual(names.sort(), [
     'conversation.hero.options',
-    'conversation.input.dock',
     'conversation.input.overlay',
+    'conversation.input.right',
   ])
 
   // The plugin no longer claims a slot in the app's navigation rail.
@@ -68,10 +68,11 @@ test('client bundle registers hero, composer and dock entries', async () => {
   const composerPill = registrations.find((entry) => entry.options.name === 'conversation.input.overlay')
   assert.equal(composerPill.options.id, 'workspace-memory-inject-composer')
 
-  // The dock entry orders after the composer card, so it renders below the input.
-  const dock = registrations.find((entry) => entry.options.name === 'conversation.input.dock')
-  assert.equal(dock.options.id, 'workspace-memory-dock')
-  assert.equal(dock.options.order, 2)
+  // The trigger sits in the composer's control row just before the
+  // progress-narration trigger, which registers order 40 there.
+  const trigger = registrations.find((entry) => entry.options.name === 'conversation.input.right')
+  assert.equal(trigger.options.id, 'workspace-memory-dock')
+  assert.ok(trigger.options.order < 40, 'the trigger sits left of the narration trigger')
 
   // `remote.commands` must be declared by name: reading `ctx.remote.commands`
   // without it fails with `cannot get property "remote.commands" without inject`.
@@ -144,13 +145,13 @@ test('the memory dock opens its panel as a modal', async () => {
   })
   app.apply(ctx)
 
-  const dock = registrations.find((entry) => entry.options.name === 'conversation.input.dock')
+  const trigger = registrations.find((entry) => entry.options.name === 'conversation.input.right')
 
   // The mock does not re-render on a state change, so the entry is rendered
   // again after the click to observe the open state.
   const render = () => {
     created.length = 0
-    dock.component({ sessionId: 'session-1' })
+    trigger.component({ sessionId: 'session-1' })
   }
 
   render()

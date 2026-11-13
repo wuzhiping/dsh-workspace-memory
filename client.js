@@ -885,12 +885,20 @@ window.__ModuleLoader__.load({
       )
     }
 
+    /** Styles for the compact composer-row trigger; hover needs a real class. */
+    const TRIGGER_CSS = [
+      '.wm-trigger{appearance:none;border:0;background:transparent;color:var(--dsw-alias-label-secondary);',
+      'width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;',
+      'border-radius:var(--dsw-radius-md,6px);cursor:pointer;flex:none;padding:0}',
+      '.wm-trigger:hover{background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary)}',
+      '.wm-trigger[aria-expanded="true"]{color:var(--dsw-alias-brand-primary)}',
+    ].join('')
+
     /**
-     * The memory dock under the composer card: a small icon button that opens
-     * the memory panel as a modal. It replaces the former sidebar entry, so the
-     * plugin keeps its own surface without claiming a slot in the app's
-     * navigation rail, and the modal keeps the panel clear of the message
-     * list instead of pushing it into the conversation.
+     * The memory trigger: a compact icon in the composer's control row, placed
+     * just before the progress-narration trigger, and it opens the memory panel
+     * as a modal. It replaces the former sidebar entry, so the plugin keeps its
+     * own surface without claiming a slot in the app's navigation rail.
      */
     function MemoryDockEntry(props) {
       const strings = stringsFor(useLanguage())
@@ -910,29 +918,14 @@ window.__ModuleLoader__.load({
         'button',
         {
           type: 'button',
+          className: 'wm-trigger',
           'aria-expanded': open,
           'aria-haspopup': 'dialog',
           'aria-label': strings.panelTitle,
           title: strings.panelTitle,
           onClick: () => setOpen(true),
-          style: {
-            appearance: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            cursor: 'pointer',
-            font: 'inherit',
-            fontSize: 12,
-            lineHeight: 1.2,
-            padding: '4px 9px',
-            borderRadius: 7,
-            border: '1px solid var(--dsw-alias-border-l2)',
-            background: 'var(--dsw-alias-bg-layer-1)',
-            color: 'var(--dsw-alias-label-secondary)',
-          },
         },
-        h(Icon, { size: 14 }),
-        h('span', null, strings.nav),
+        h(Icon, { size: 16 }),
       )
 
       const modalNode = open
@@ -952,6 +945,10 @@ window.__ModuleLoader__.load({
                 justifyContent: 'center',
                 background: 'rgba(0,0,0,.42)',
                 padding: 16,
+                boxSizing: 'border-box',
+                // The dialog scrolls internally; the backdrop never scrolls.
+                overflow: 'hidden',
+                overscrollBehavior: 'contain',
               },
             },
             h(
@@ -964,7 +961,9 @@ window.__ModuleLoader__.load({
                   width: 720,
                   maxWidth: 'calc(100vw - 32px)',
                   maxHeight: 'calc(100vh - 32px)',
-                  overflow: 'auto',
+                  boxSizing: 'border-box',
+                  overflowY: 'auto',
+                  overscrollBehavior: 'contain',
                   borderRadius: 13,
                   border: '1px solid var(--dsw-alias-border-l2)',
                   background: 'var(--dsw-alias-bg-overlay)',
@@ -978,26 +977,7 @@ window.__ModuleLoader__.load({
           )
         : null
 
-      return h(
-        'div',
-        {
-          style: {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 8,
-            width: '100%',
-            margin: '0 auto',
-            // The dock seat's anchor is `display: contents`, so this element is a
-            // direct flex item of the composer stack — which also holds the
-            // composer card. Sorting after the card puts the entry BELOW the
-            // input box.
-            order: 2,
-          },
-        },
-        button,
-        modalNode,
-      )
+      return h(React.Fragment, null, h('style', null, TRIGGER_CSS), button, modalNode)
     }
 
     function MemoryPanel(props) {
@@ -1521,15 +1501,15 @@ window.__ModuleLoader__.load({
             ComposerInject,
           ),
         )
-        // The memory dock sits under the composer card: `conversation.input.dock`
-        // is the full-width stack the composer card itself lives in, so an entry
-        // ordered after the card renders BELOW the input box.
-        ctx.slots.inject('conversation.input.dock', () =>
+        // The memory trigger rides the composer's compact control row, just
+        // before the progress-narration trigger (order 40), so the two icons
+        // sit side by side before the model selector.
+        ctx.slots.inject('conversation.input.right', () =>
           ctx.slots.register(
             {
-              name: 'conversation.input.dock',
+              name: 'conversation.input.right',
               id: 'workspace-memory-dock',
-              order: 2,
+              order: 39,
             },
             MemoryDockEntry,
           ),
