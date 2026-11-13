@@ -78,6 +78,109 @@ test('client bundle registers hero, composer and dock entries', async () => {
   assert.deepEqual(app.inject, ['slots', 'remote', 'remote.commands', 'locale'])
 })
 
+test('the memory dock opens its panel as a modal', async () => {
+  let loaded
+  globalThis.window = {
+    __ModuleLoader__: {
+      load(definition) {
+        loaded = definition
+      },
+    },
+    addEventListener() {},
+    removeEventListener() {},
+  }
+
+  await import(`${new URL('../client.js', import.meta.url).href}?test=modal`)
+
+  // A React mock that records every element it is asked to create, so the
+  // rendered tree can be inspected for the modal's semantics.
+  const created = []
+  let state = null
+  let setState = null
+  const React = {
+    createElement(type, props, ...children) {
+      const element = { type, props: props ?? {}, children: children.flat() }
+      created.push(element)
+      return element
+    },
+    Fragment: 'fragment',
+    useState(initial) {
+      if (state === null) {
+        state = typeof initial === 'function' ? initial() : initial
+        setState = (next) => {
+          state = typeof next === 'function' ? next(state) : next
+        }
+      }
+      return [state, setState]
+    },
+    useEffect() {},
+    useRef() {
+      return { current: null }
+    },
+    useSyncExternalStore(subscribe, getSnapshot) {
+      return getSnapshot()
+    },
+  }
+
+  const registrations = []
+  const ctx = {
+    slots: {
+      inject(name, callback) {
+        callback()
+        return () => {}
+      },
+      register(options, component) {
+        registrations.push({ options, component })
+        return () => {}
+      },
+    },
+    remote: {},
+    locale: { getLocale: () => ({ id: 'zh' }) },
+  }
+
+  const app = loaded.factory((name) => {
+    if (name === 'react') return React
+    throw new Error(`unexpected require: ${name}`)
+  })
+  app.apply(ctx)
+
+  const dock = registrations.find((entry) => entry.options.name === 'conversation.input.dock')
+
+  // The mock does not re-render on a state change, so the entry is rendered
+  // again after the click to observe the open state.
+  const render = () => {
+    created.length = 0
+    dock.component({ sessionId: 'session-1' })
+  }
+
+  render()
+  const button = created.find((element) => element.type === 'button')
+  assert.ok(button, 'the dock entry renders a button')
+  assert.equal(button.props['aria-haspopup'], 'dialog')
+  assert.equal(button.props['aria-expanded'], false)
+
+  // Opening the panel renders a modal dialog.
+  button.props.onClick()
+  assert.equal(state, true, 'the click opens the panel')
+
+  render()
+  const dialog = created.find((element) => element.props?.role === 'dialog')
+  assert.ok(dialog, 'the panel renders a dialog element')
+  assert.equal(dialog.props['aria-modal'], true)
+  assert.equal(dialog.props['aria-label'], '工作区记忆')
+
+  // The modal sits on a fixed, centred backdrop.
+  const backdrop = created.find(
+    (element) => element.props?.role === 'presentation' && element.props?.style?.position === 'fixed',
+  )
+  assert.ok(backdrop, 'the dialog renders on a fixed backdrop')
+  assert.equal(backdrop.props.style.zIndex, 10050)
+
+  // Clicking the backdrop dismisses the panel.
+  backdrop.props.onMouseDown({ target: backdrop, currentTarget: backdrop })
+  assert.equal(state, false, 'clicking the backdrop closes the panel')
+})
+
 test('client copy follows a Traditional Chinese host locale', async () => {
   let loaded
   globalThis.window = {

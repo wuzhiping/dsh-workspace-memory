@@ -204,6 +204,7 @@ window.__ModuleLoader__.load({
         outputTokens: 'output tokens',
         maxTokensError:
           'The curator output hit its token limit before the brief was complete. Raise curator.maxTokens in the plugin config, then try again.',
+        close: 'Close',
         language: 'Language',
         routeSource: {
           project: 'project override',
@@ -273,6 +274,7 @@ window.__ModuleLoader__.load({
         outputTokens: '输出 tokens',
         maxTokensError:
           '整理模型输出达到 token 上限，内容还没写完。请在插件配置里调高 curator.maxTokens 后重试。',
+        close: '关闭',
         language: '语言',
         routeSource: {
           project: '项目覆盖',
@@ -346,6 +348,7 @@ window.__ModuleLoader__.load({
         outputTokens: '輸出 tokens',
         maxTokensError:
           '整理模型輸出達到 token 上限，內容還沒寫完。請在外掛設定裡調高 curator.maxTokens 後再試。',
+        close: '關閉',
         language: '語言',
         routeSource: {
           project: '專案覆寫',
@@ -883,10 +886,11 @@ window.__ModuleLoader__.load({
     }
 
     /**
-     * The memory dock under the composer card: a small icon button that expands
-     * the memory panel in place. It replaces the former sidebar entry, so the
+     * The memory dock under the composer card: a small icon button that opens
+     * the memory panel as a modal. It replaces the former sidebar entry, so the
      * plugin keeps its own surface without claiming a slot in the app's
-     * navigation rail.
+     * navigation rail, and the modal keeps the panel clear of the message
+     * list instead of pushing it into the conversation.
      */
     function MemoryDockEntry(props) {
       const strings = stringsFor(useLanguage())
@@ -907,9 +911,10 @@ window.__ModuleLoader__.load({
         {
           type: 'button',
           'aria-expanded': open,
+          'aria-haspopup': 'dialog',
           'aria-label': strings.panelTitle,
           title: strings.panelTitle,
-          onClick: () => setOpen((value) => !value),
+          onClick: () => setOpen(true),
           style: {
             appearance: 'none',
             display: 'inline-flex',
@@ -923,12 +928,55 @@ window.__ModuleLoader__.load({
             borderRadius: 7,
             border: '1px solid var(--dsw-alias-border-l2)',
             background: 'var(--dsw-alias-bg-layer-1)',
-            color: open ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-secondary)',
+            color: 'var(--dsw-alias-label-secondary)',
           },
         },
         h(Icon, { size: 14 }),
         h('span', null, strings.nav),
       )
+
+      const modalNode = open
+        ? h(
+            'div',
+            {
+              role: 'presentation',
+              onMouseDown: (event) => {
+                if (event.target === event.currentTarget) setOpen(false)
+              },
+              style: {
+                position: 'fixed',
+                inset: 0,
+                zIndex: 10050,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(0,0,0,.42)',
+                padding: 16,
+              },
+            },
+            h(
+              'div',
+              {
+                role: 'dialog',
+                'aria-modal': true,
+                'aria-label': strings.panelTitle,
+                style: {
+                  width: 720,
+                  maxWidth: 'calc(100vw - 32px)',
+                  maxHeight: 'calc(100vh - 32px)',
+                  overflow: 'auto',
+                  borderRadius: 13,
+                  border: '1px solid var(--dsw-alias-border-l2)',
+                  background: 'var(--dsw-alias-bg-overlay)',
+                  color: 'var(--dsw-alias-label-primary)',
+                  boxShadow: '0 24px 64px rgba(0,0,0,.28)',
+                  padding: 20,
+                },
+              },
+              h(MemoryPanel, { ...props, sessionId, onClose: () => setOpen(false) }),
+            ),
+          )
+        : null
 
       return h(
         'div',
@@ -948,22 +996,7 @@ window.__ModuleLoader__.load({
           },
         },
         button,
-        open
-          ? h(
-              'div',
-              {
-                style: {
-                  width: '100%',
-                  border: '1px solid var(--dsw-alias-border-l1)',
-                  borderRadius: 10,
-                  background: 'var(--dsw-alias-bg-layer-1)',
-                  padding: '10px 12px',
-                  boxShadow: 'var(--dsw-elevation-panel)',
-                },
-              },
-              h(MemoryPanel, { ...props, sessionId, embedded: true }),
-            )
-          : null,
+        modalNode,
       )
     }
 
@@ -1095,23 +1128,13 @@ window.__ModuleLoader__.load({
       return h(
         'div',
         {
-          style: props.embedded
-            ? {
-                overflow: 'auto',
-                maxHeight: '52vh',
-                color: 'var(--dsw-alias-label-primary)',
-              }
-            : {
-                height: '100%',
-                overflow: 'auto',
-                padding: '48px 28px 40px',
-                color: 'var(--dsw-alias-label-primary)',
-                background: 'var(--dsw-alias-bg-base)',
-              },
+          style: {
+            color: 'var(--dsw-alias-label-primary)',
+          },
         },
         h(
           'div',
-          { style: props.embedded ? { maxWidth: 820, margin: '0 auto', padding: '4px 2px 8px' } : { maxWidth: 820, margin: '0 auto' } },
+          { style: { maxWidth: 820, margin: '0 auto' } },
           h(
             'div',
             { style: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 } },
@@ -1125,6 +1148,33 @@ window.__ModuleLoader__.load({
                 { type: 'button', onClick: () => refresh(true), disabled: loading, style: buttonStyle(false) },
                 loading ? strings.loading : strings.refresh,
               ),
+              props.onClose
+                ? h(
+                    'button',
+                    {
+                      type: 'button',
+                      'aria-label': strings.close,
+                      title: strings.close,
+                      onClick: props.onClose,
+                      style: {
+                        appearance: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 26,
+                        height: 26,
+                        cursor: 'pointer',
+                        borderRadius: 7,
+                        border: '1px solid var(--dsw-alias-border-l2)',
+                        background: 'var(--dsw-alias-bg-layer-1)',
+                        color: 'var(--dsw-alias-label-secondary)',
+                        fontSize: 15,
+                        lineHeight: 1,
+                      },
+                    },
+                    '×',
+                  )
+                : null,
             ),
           ),
           status

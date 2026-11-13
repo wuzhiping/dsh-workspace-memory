@@ -152,7 +152,7 @@ No native dependencies or build scripts are required.
 4. Click it. The confirmation layer appears; nothing has been sent to a model yet.
 5. Review the source conversations, model route, input/output/injection estimates, and the privacy note. Click **Curate and inject**.
 6. The button changes to **Waiting for your first message**. Send your first message; the brief is inserted after it and travels with that normal request.
-7. Click the **Memory** icon under the input box to view the brief, edit your notes, set a project-level curator route, or reset the project's memory.
+7. Click the **Memory** icon under the input box to open the memory panel in a modal, where you can view the brief, edit your notes, set a project-level curator route, or reset the project's memory.
 
 The plugin also provides a floating fallback button in the lower-right corner when the conversation hero seat is unavailable.
 
