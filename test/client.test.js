@@ -77,3 +77,70 @@ test('client bundle registers hero, composer and dock entries', async () => {
   // without it fails with `cannot get property "remote.commands" without inject`.
   assert.deepEqual(app.inject, ['slots', 'remote', 'remote.commands', 'locale'])
 })
+
+test('client copy follows a Traditional Chinese host locale', async () => {
+  let loaded
+  globalThis.window = {
+    __ModuleLoader__: {
+      load(definition) {
+        loaded = definition
+      },
+    },
+  }
+
+  await import(`${new URL('../client.js', import.meta.url).href}?test=zh-tw`)
+  assert.ok(loaded, 'module loader received the bundle')
+
+  const React = {
+    createElement() {
+      return null
+    },
+    Fragment: 'fragment',
+    useState() {
+      return [undefined, () => {}]
+    },
+    useEffect() {},
+    useRef() {
+      return { current: null }
+    },
+  }
+  const registrations = []
+  let localeId = 'zh-TW'
+  const ctx = {
+    slots: {
+      inject(name, callback) {
+        callback()
+        return () => {}
+      },
+      register(options, component) {
+        registrations.push({ options, component })
+        return () => {}
+      },
+    },
+    remote: {},
+    locale: { getLocale: () => ({ id: localeId }) },
+  }
+
+  const app = loaded.factory((name) => {
+    if (name === 'react') return React
+    throw new Error(`unexpected require: ${name}`)
+  })
+  app.apply(ctx)
+
+  const hero = registrations.find((entry) => entry.options.name === 'conversation.hero.options')
+
+  // A Traditional Chinese host locale selects the Traditional copy.
+  assert.equal(hero.options.label(), '注入記憶')
+
+  // Other Traditional Chinese locales resolve the same way.
+  localeId = 'zh-HK'
+  assert.equal(hero.options.label(), '注入記憶')
+
+  // Simplified Chinese keeps the Simplified copy.
+  localeId = 'zh'
+  assert.equal(hero.options.label(), '注入记忆')
+
+  // English stays English.
+  localeId = 'en'
+  assert.equal(hero.options.label(), 'Inject memory')
+})

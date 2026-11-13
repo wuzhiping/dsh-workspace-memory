@@ -11,7 +11,7 @@ window.__ModuleLoader__.load({
     let heroMounts = 0
     const heroListeners = new Set()
 
-    /** Persisted UI language override: 'zh', 'en', or null to follow the host locale. */
+    /** Persisted UI language override: 'zh', 'zh-TW', 'en', or null to follow the host locale. */
     const LANGUAGE_STORAGE_KEY = 'dsh-workspace-memory.language'
     const languageListeners = new Set()
     let languageOverride = readLanguageOverride()
@@ -25,18 +25,27 @@ window.__ModuleLoader__.load({
       }
     }
 
+    /** The language ids this bundle ships copy for. */
+    const LANGUAGE_IDS = ['zh', 'zh-TW', 'en']
+
     function readLanguageOverride() {
       try {
         const value = languageStorage()?.getItem(LANGUAGE_STORAGE_KEY)
-        return value === 'zh' || value === 'en' ? value : null
+        return LANGUAGE_IDS.includes(value) ? value : null
       } catch {
         return null
       }
     }
 
+    /**
+     * The host locale this bundle follows. A Traditional Chinese locale
+     * (`zh-TW`, `zh-HK`, `zh-MO`) selects the Traditional copy; any other `zh`
+     * selects the Simplified copy; everything else is English.
+     */
     function hostLanguage() {
-      const id = appCtx?.locale?.getLocale?.()?.id
-      return id && String(id).toLowerCase().startsWith('zh') ? 'zh' : 'en'
+      const id = String(appCtx?.locale?.getLocale?.()?.id ?? '').toLowerCase()
+      if (!id.startsWith('zh')) return 'en'
+      return /^(zh-tw|zh-hk|zh-mo|zh-hant)/.test(id) ? 'zh-TW' : 'zh'
     }
 
     function currentLanguage() {
@@ -44,7 +53,7 @@ window.__ModuleLoader__.load({
     }
 
     function setLanguage(next) {
-      languageOverride = next === 'zh' || next === 'en' ? next : null
+      languageOverride = LANGUAGE_IDS.includes(next) ? next : null
       try {
         const storage = languageStorage()
         if (languageOverride === null) storage?.removeItem(LANGUAGE_STORAGE_KEY)
@@ -67,7 +76,7 @@ window.__ModuleLoader__.load({
 
     function LanguageToggle() {
       const language = useLanguage()
-      const strings = STRINGS[language]
+      const strings = stringsFor(language)
       return h(
         'div',
         {
@@ -83,7 +92,7 @@ window.__ModuleLoader__.load({
             flex: 'none',
           },
         },
-        ['zh', 'en'].map((id) =>
+        ['zh', 'zh-TW', 'en'].map((id) =>
           h(
             'button',
             {
@@ -107,7 +116,7 @@ window.__ModuleLoader__.load({
                 fontWeight: language === id ? 600 : 400,
               },
             },
-            id === 'zh' ? '中文' : 'EN',
+            id === 'zh' ? '简' : id === 'zh-TW' ? '繁' : 'EN',
           ),
         ),
       )
@@ -273,10 +282,91 @@ window.__ModuleLoader__.load({
         },
         routeLabel: (base, source) => `${base}（${source}）`,
       },
+      // Traditional Chinese (zh-TW). The plugin's copy lives in this file
+      // rather than in a host locale namespace, so the profile's Simplified-to-
+      // Traditional converter never reaches it: the dictionaries are hand
+      // written, using Taiwan wording (專案 / 記憶 / 對話 / 整理).
+      'zh-TW': {
+        nav: '記憶',
+        inject: '注入記憶',
+        injectTitle: '注入專案記憶',
+        confirmTitle: '先整理，再注入',
+        confirmBody: '外掛會先呼叫一次整理模型，再把整理後的 brief 在你傳送第一則訊息後注入目前對話。',
+        sources: '較早的對話',
+        sourceLine: (n) => `這個專案裡有 ${n} 個較早的對話`,
+        compressed: '有壓縮摘要',
+        model: '整理模型',
+        input: '輸入估算',
+        output: '輸出上限',
+        injection: '注入估算',
+        tokens: (n) => `約 ${Math.round(n).toLocaleString()} tokens`,
+        privacy: '專案摘要會傳送給該模型供應商。',
+        confirm: '整理並注入',
+        cancel: '取消',
+        curating: '正在整理…',
+        prepared: '已整理，將在你傳送第一則訊息時注入。',
+        retry: '重試',
+        failed: '失敗',
+        noModel: '沒有可用的整理模型。',
+        noSources: '這個專案裡還沒有其他有內容的對話。',
+        noNew: '自上次 brief 以來沒有新內容；這次仍會呼叫 1 次模型。',
+        notBlank: '目前對話已經有訊息了。',
+        pending: '等待你傳送第一則訊息。',
+        tooltipTitle: '專案記憶',
+        tooltipNoCall: '點選後會先彈出確認；確認之前不會呼叫模型。',
+        panelTitle: '工作區記憶',
+        panelEmpty: '開啟一個專案對話後檢視該專案的記憶。',
+        loading: '載入中…',
+        refresh: '重新整理',
+        brief: '目前摘要',
+        noBrief: '這個專案還沒有產生 brief。',
+        notes: '你的筆記',
+        notesHint: '筆記會原樣插入，整理模型不會改寫。',
+        save: '儲存筆記',
+        saved: '已儲存',
+        route: '整理路由',
+        provider: 'Provider',
+        modelId: '模型',
+        saveRoute: '儲存路由',
+        clearRoute: '使用目前對話模型',
+        reset: '重設專案記憶',
+        resetConfirm: '刪除這個專案已儲存的 brief 與快取？筆記會保留。',
+        confirmReset: '確認重設',
+        path: '儲存路徑',
+        copy: '複製',
+        copied: '已複製',
+        last: '上次注入',
+        none: '無',
+        noSession: '沒有進行中的對話。',
+        onlyUser: '整理模型只會在新對話點選「注入記憶」並確認後呼叫。',
+        statusFailed: '記憶狀態檢查失敗',
+        checking: '正在檢查專案記憶…',
+        memoryShort: '記憶…',
+        briefSavedNoInject: '記憶已儲存，但目前對話已經開始；請新開一個對話再注入。',
+        outputTokens: '輸出 tokens',
+        maxTokensError:
+          '整理模型輸出達到 token 上限，內容還沒寫完。請在外掛設定裡調高 curator.maxTokens 後再試。',
+        language: '語言',
+        routeSource: {
+          project: '專案覆寫',
+          global: '全域設定',
+          session: '目前對話模型',
+          default: '預設模型',
+        },
+        routeLabel: (base, source) => `${base}（${source}）`,
+      },
+    }
+
+    /**
+     * The copy for the active language. An unknown id falls back to English so
+     * a host locale this bundle does not ship copy for still renders.
+     */
+    function stringsFor(language) {
+      return STRINGS[language] ?? STRINGS.en
     }
 
     function t() {
-      return STRINGS[currentLanguage()]
+      return stringsFor(currentLanguage())
     }
 
     async function runCommand(sessionId, line) {
@@ -388,7 +478,7 @@ window.__ModuleLoader__.load({
     }
 
     function InjectMemoryButton(props) {
-      const strings = STRINGS[useLanguage()]
+      const strings = stringsFor(useLanguage())
       const sessionId = props.sessionId
       const useSessions = props.useSessions
       const blank = useSessions ? useSessions((state) => state?.byId?.[sessionId]?.blank) : undefined
@@ -799,7 +889,7 @@ window.__ModuleLoader__.load({
      * navigation rail.
      */
     function MemoryDockEntry(props) {
-      const strings = STRINGS[useLanguage()]
+      const strings = stringsFor(useLanguage())
       const [open, setOpen] = React.useState(false)
       const sessionId = props.sessionId
 
@@ -878,7 +968,7 @@ window.__ModuleLoader__.load({
     }
 
     function MemoryPanel(props) {
-      const strings = STRINGS[useLanguage()]
+      const strings = stringsFor(useLanguage())
       const useSessions = props.useSessions
       const liveSessionId = useSessions
         ? useSessions((state) => {
