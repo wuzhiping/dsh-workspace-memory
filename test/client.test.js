@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-test('client bundle registers hero, sidebar and main entries', async () => {
+test('client bundle registers hero, composer and dock entries', async () => {
   let loaded
   globalThis.window = {
     __ModuleLoader__: {
@@ -13,7 +13,7 @@ test('client bundle registers hero, sidebar and main entries', async () => {
 
   await import(`${new URL('../client.js', import.meta.url).href}?test=1`)
   assert.ok(loaded, 'module loader received the bundle')
-  assert.equal(loaded.id, '@libraqg/dsh-workspace-memory')
+  assert.equal(loaded.id, 'dsh-workspace-memory')
 
   const React = {
     createElement() {
@@ -53,23 +53,27 @@ test('client bundle registers hero, sidebar and main entries', async () => {
   const names = registrations.map((entry) => entry.options.name)
   assert.deepEqual(names.sort(), [
     'conversation.hero.options',
+    'conversation.input.dock',
     'conversation.input.overlay',
-    'main',
-    'sidebar.panellist',
   ])
-  const main = registrations.find((entry) => entry.options.name === 'main')
-  assert.equal(main.options.key, 'workspace-memory')
-  const sidebar = registrations.find((entry) => entry.options.name === 'sidebar.panellist')
-  assert.equal(sidebar.options.id, 'workspace-memory')
+
+  // The plugin no longer claims a slot in the app's navigation rail.
+  assert.equal(names.includes('sidebar.panellist'), false)
+  assert.equal(names.includes('main'), false)
+
   const hero = registrations.find((entry) => entry.options.name === 'conversation.hero.options')
   assert.equal(hero.options.id, 'workspace-memory-inject')
+  assert.equal(hero.options.label(), '注入记忆')
+
   const composerPill = registrations.find((entry) => entry.options.name === 'conversation.input.overlay')
   assert.equal(composerPill.options.id, 'workspace-memory-inject-composer')
 
-  assert.equal(hero.options.label(), '注入记忆')
-  assert.equal(sidebar.options.label(), '记忆')
+  // The dock entry orders after the composer card, so it renders below the input.
+  const dock = registrations.find((entry) => entry.options.name === 'conversation.input.dock')
+  assert.equal(dock.options.id, 'workspace-memory-dock')
+  assert.equal(dock.options.order, 2)
 
-  ctx.locale.getLocale = () => ({ id: 'en' })
-  assert.equal(hero.options.label(), 'Inject memory')
-  assert.equal(sidebar.options.label(), 'Memory')
+  // `remote.commands` must be declared by name: reading `ctx.remote.commands`
+  // without it fails with `cannot get property "remote.commands" without inject`.
+  assert.deepEqual(app.inject, ['slots', 'remote', 'remote.commands', 'locale'])
 })

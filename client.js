@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@libraqg/dsh-workspace-memory',
+  id: 'dsh-workspace-memory',
   factory(require) {
     const React = require('react')
     const h = React.createElement
@@ -792,14 +792,89 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function MemoryIcon(props) {
-      const active = props.useSessions((state) => {
-        const rows = Object.values(state?.byId ?? {})
-        return rows.find((row) => (row?.retainedBy?.mainView ?? 0) > 0)?.id
-      })
-      if (active !== undefined) lastActiveSessionId = active
-      const size = props?.size ?? 16
-      return h(Icon, { size })
+    /**
+     * The memory dock under the composer card: a small icon button that expands
+     * the memory panel in place. It replaces the former sidebar entry, so the
+     * plugin keeps its own surface without claiming a slot in the app's
+     * navigation rail.
+     */
+    function MemoryDockEntry(props) {
+      const strings = STRINGS[useLanguage()]
+      const [open, setOpen] = React.useState(false)
+      const sessionId = props.sessionId
+
+      React.useEffect(() => {
+        if (!open) return undefined
+        const onKey = (event) => {
+          if (event.key === 'Escape') setOpen(false)
+        }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+      }, [open])
+
+      const button = h(
+        'button',
+        {
+          type: 'button',
+          'aria-expanded': open,
+          'aria-label': strings.panelTitle,
+          title: strings.panelTitle,
+          onClick: () => setOpen((value) => !value),
+          style: {
+            appearance: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            cursor: 'pointer',
+            font: 'inherit',
+            fontSize: 12,
+            lineHeight: 1.2,
+            padding: '4px 9px',
+            borderRadius: 7,
+            border: '1px solid var(--dsw-alias-border-l2)',
+            background: 'var(--dsw-alias-bg-layer-1)',
+            color: open ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-secondary)',
+          },
+        },
+        h(Icon, { size: 14 }),
+        h('span', null, strings.nav),
+      )
+
+      return h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+            width: '100%',
+            margin: '0 auto',
+            // The dock seat's anchor is `display: contents`, so this element is a
+            // direct flex item of the composer stack — which also holds the
+            // composer card. Sorting after the card puts the entry BELOW the
+            // input box.
+            order: 2,
+          },
+        },
+        button,
+        open
+          ? h(
+              'div',
+              {
+                style: {
+                  width: '100%',
+                  border: '1px solid var(--dsw-alias-border-l1)',
+                  borderRadius: 10,
+                  background: 'var(--dsw-alias-bg-layer-1)',
+                  padding: '10px 12px',
+                  boxShadow: 'var(--dsw-elevation-panel)',
+                },
+              },
+              h(MemoryPanel, { ...props, sessionId, embedded: true }),
+            )
+          : null,
+      )
     }
 
     function MemoryPanel(props) {
@@ -811,7 +886,12 @@ window.__ModuleLoader__.load({
             return rows.find((row) => (row?.retainedBy?.mainView ?? 0) > 0)?.id
           })
         : undefined
-      const sessionId = liveSessionId ?? lastActiveSessionId
+      // Remember the last conversation that owned the main view so the panel
+      // still shows its project after that conversation is closed.
+      React.useEffect(() => {
+        if (liveSessionId !== undefined) lastActiveSessionId = liveSessionId
+      }, [liveSessionId])
+      const sessionId = props.sessionId ?? liveSessionId ?? lastActiveSessionId
       const [status, setStatus] = React.useState(null)
       const [error, setError] = React.useState(null)
       const [notes, setNotes] = React.useState('')
@@ -925,17 +1005,23 @@ window.__ModuleLoader__.load({
       return h(
         'div',
         {
-          style: {
-            height: '100%',
-            overflow: 'auto',
-            padding: '48px 28px 40px',
-            color: 'var(--dsw-alias-label-primary)',
-            background: 'var(--dsw-alias-bg-base)',
-          },
+          style: props.embedded
+            ? {
+                overflow: 'auto',
+                maxHeight: '52vh',
+                color: 'var(--dsw-alias-label-primary)',
+              }
+            : {
+                height: '100%',
+                overflow: 'auto',
+                padding: '48px 28px 40px',
+                color: 'var(--dsw-alias-label-primary)',
+                background: 'var(--dsw-alias-bg-base)',
+              },
         },
         h(
           'div',
-          { style: { maxWidth: 820, margin: '0 auto' } },
+          { style: props.embedded ? { maxWidth: 820, margin: '0 auto', padding: '4px 2px 8px' } : { maxWidth: 820, margin: '0 auto' } },
           h(
             'div',
             { style: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 } },
@@ -1265,6 +1351,10 @@ window.__ModuleLoader__.load({
     }
 
     return {
+      // `remote` is the typed Client Remote mount; `remote.commands` is the
+      // namespace this plugin calls. Both must be declared: reading
+      // `ctx.remote.commands` without the declaration fails with
+      // `cannot get property "remote.commands" without inject`.
       inject: ['slots', 'remote', 'remote.commands', 'locale'],
       apply(ctx) {
         appCtx = ctx
@@ -1279,6 +1369,8 @@ window.__ModuleLoader__.load({
             InjectMemoryButton,
           ),
         )
+        // Fallback inject button for a blank conversation whose Hero seat is
+        // unavailable: it rides the composer card's top-right corner.
         ctx.slots.inject('conversation.input.overlay', () =>
           ctx.slots.register(
             {
@@ -1289,24 +1381,17 @@ window.__ModuleLoader__.load({
             ComposerInject,
           ),
         )
-        ctx.slots.inject('sidebar.panellist', () =>
+        // The memory dock sits under the composer card: `conversation.input.dock`
+        // is the full-width stack the composer card itself lives in, so an entry
+        // ordered after the card renders BELOW the input box.
+        ctx.slots.inject('conversation.input.dock', () =>
           ctx.slots.register(
             {
-              name: 'sidebar.panellist',
-              id: 'workspace-memory',
-              order: 20,
-              label: () => t().nav,
+              name: 'conversation.input.dock',
+              id: 'workspace-memory-dock',
+              order: 2,
             },
-            MemoryIcon,
-          ),
-        )
-        ctx.slots.inject('main', () =>
-          ctx.slots.register(
-            {
-              name: 'main',
-              key: 'workspace-memory',
-            },
-            MemoryPanel,
+            MemoryDockEntry,
           ),
         )
       },

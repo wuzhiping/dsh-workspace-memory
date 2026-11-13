@@ -697,5 +697,5 @@ export function apply(ctx, rawConfig) {
   }, 'workspace-memory.lifecycle')
 }
 
-export const name = 'workspace-memory'
+export const name = 'dsh-workspace-memory'
 export const inject = ['commands']

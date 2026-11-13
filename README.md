@@ -3,14 +3,13 @@
   <h1>dsh-workspace-memory</h1>
   <p><strong>Explicit, project-scoped memory handoff for DeepSeek Harness.</strong><br/>
   One confirmation. One model call. No silent background calls.</p>
-  <p><strong>Category:</strong> Memory &amp; Context · <strong>License:</strong> MIT · <strong>Install:</strong> npm 0.1.2 / GitHub source</p>
+  <p><strong>Category:</strong> Memory &amp; Context · <strong>License:</strong> MIT · <strong>Install:</strong> GitHub source</p>
   <p>English | <a href="README.zh.md">中文</a></p>
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
     <img src="https://img.shields.io/badge/DSH-%3E%3D0.2.1--rc.2-6f42c1" alt="DSH >= 0.2.1-rc.2">
     <img src="https://img.shields.io/badge/node-%3E%3D22.19-339933" alt="Node >= 22.19">
-    <a href="https://www.npmjs.com/package/@libraqg/dsh-workspace-memory"><img src="https://img.shields.io/npm/v/@libraqg/dsh-workspace-memory.svg" alt="npm"></a>
-    <a href="https://dsh-plugin.org/plugins/libraqg/dsh-workspace-memory"><img src="https://dsh-plugin.org/badges/listed.svg" alt="Listed on dsh-plugin.org"></a>
+    <a href="https://dsh-plugin.org/plugins/wuzhiping/dsh-workspace-memory"><img src="https://dsh-plugin.org/badges/listed.svg" alt="Listed on dsh-plugin.org"></a>
     <a href="https://github.com/awesome-dsh-plugin/awesome-dsh-plugin"><img src="https://awesome-dsh-plugin.com/badge.svg" alt="DSH plugin"></a>
   </p>
 </div>
@@ -20,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Libraqg/dsh-workspace-memory/blob/main/assets/demo.mp4">Watch the full 24-second demo (MP4)</a>
+  <a href="https://github.com/wuzhiping/dsh-workspace-memory/blob/main/assets/demo.mp4">Watch the full 24-second demo (MP4)</a>
 </p>
 
 ## The problem
@@ -46,7 +45,7 @@ This plugin does one narrow thing:
 | **Your notes stay yours** | Pinned `notes.md` are inserted verbatim. The curator model is told not to rewrite them and is not allowed to replace them. |
 | **Zero native dependencies** | Pure Node.js ESM. No SQLite, no ONNX runtime, no embedding model download, no build-script approval. The stored state is a few plain files. |
 | **Fail closed, no surprise retry** | If the curator route fails, times out, or returns an invalid brief, the plugin reports the error and injects nothing. It does not silently retry, switch models, or fall back to another call. |
-| **Auditable by design** | `brief.md`, `notes.md`, and `state.json` live under `~/.dsh/workspace-memory/`. The sidebar panel shows the brief, notes, sources, last model usage, and the storage path; you can reset a project's memory at any time. |
+| **Auditable by design** | `brief.md`, `notes.md`, and `state.json` live under `~/.dsh/workspace-memory/`. The **Memory** icon under the input box opens the same view: brief, notes, sources, last model usage, and the storage path; you can reset a project's memory at any time. |
 | **Bilingual UI** | Defaults to the DSH locale; the confirmation layer has a 中文/EN toggle persisted locally, and the panel follows the same choice. |
 
 ## How it works
@@ -113,42 +112,19 @@ Verify against the files before acting.
 - Node.js `>=22.19.0` (the DSH runtime requirement).
 - A working DSH model route. The default curator uses the current conversation's model; you can override it per project.
 
-### Install from npm
-
-The npm package is `@libraqg/dsh-workspace-memory`:
-
-```bash
-dsh plugin --profile web add @libraqg/dsh-workspace-memory
-```
-
-Desktop profile:
-
-```bash
-dsh plugin --profile desktop add @libraqg/dsh-workspace-memory
-```
-
-If the `dsh` command is not on your `PATH` (common in the Desktop app), run the same command through the published CLI:
-
-```bash
-npx --yes @deepseek-ai/dsh plugin --profile desktop add @libraqg/dsh-workspace-memory
-```
-
-Because it is on npm, it is eligible for the in-DSH Plugin Center one-command install.
-
-If you prefer not to use npm, the GitHub source install is available as a fallback.
 
 ### Install from GitHub
 
 Web profile:
 
 ```bash
-dsh plugin --profile web add github:Libraqg/dsh-workspace-memory
+dsh plugin --profile web add github:wuzhiping/dsh-workspace-memory
 ```
 
 Desktop profile:
 
 ```bash
-dsh plugin --profile desktop add github:Libraqg/dsh-workspace-memory
+dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 Use the profile name that matches your DSH installation. Restart the DSH profile after installation, then refresh the Web UI.
@@ -156,14 +132,14 @@ Use the profile name that matches your DSH installation. Restart the DSH profile
 ### Install from a local checkout
 
 ```bash
-git clone https://github.com/Libraqg/dsh-workspace-memory.git
+git clone https://github.com/wuzhiping/dsh-workspace-memory.git
 dsh plugin --profile desktop add "$PWD/dsh-workspace-memory"
 ```
 
 If the `dsh` command is not on your `PATH` in the Desktop app, use **Settings → Plugins → Install** with the repository URL or local directory, or run:
 
 ```bash
-npx --yes @deepseek-ai/dsh plugin --profile desktop add github:Libraqg/dsh-workspace-memory
+npx --yes @deepseek-ai/dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 No native dependencies or build scripts are required.
@@ -176,7 +152,7 @@ No native dependencies or build scripts are required.
 4. Click it. The confirmation layer appears; nothing has been sent to a model yet.
 5. Review the source conversations, model route, input/output/injection estimates, and the privacy note. Click **Curate and inject**.
 6. The button changes to **Waiting for your first message**. Send your first message; the brief is inserted after it and travels with that normal request.
-7. Open the sidebar **Memory** panel to view the brief, edit your notes, set a project-level curator route, or reset the project's memory.
+7. Click the **Memory** icon under the input box to view the brief, edit your notes, set a project-level curator route, or reset the project's memory.
 
 The plugin also provides a floating fallback button in the lower-right corner when the conversation hero seat is unavailable.
 

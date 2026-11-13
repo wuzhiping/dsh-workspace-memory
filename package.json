@@ -1,10 +1,10 @@
 {
-  "name": "@libraqg/dsh-workspace-memory",
+  "name": "dsh-workspace-memory",
   "version": "0.1.2",
   "type": "module",
   "description": "Explicit, project-scoped memory handoff for DeepSeek Harness: one confirmed model call curates earlier conversations into a bounded brief and injects it into a new conversation. No silent background calls.",
   "license": "MIT",
-  "author": "Libraqg",
+  "author": "wuzhiping",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -17,11 +17,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Libraqg/dsh-workspace-memory.git"
+    "url": "git+https://github.com/wuzhiping/dsh-workspace-memory.git"
   },
-  "homepage": "https://github.com/Libraqg/dsh-workspace-memory#readme",
+  "homepage": "https://github.com/wuzhiping/dsh-workspace-memory#readme",
   "bugs": {
-    "url": "https://github.com/Libraqg/dsh-workspace-memory/issues"
+    "url": "https://github.com/wuzhiping/dsh-workspace-memory/issues"
   },
   "engines": {
     "node": ">=22.19.0",
@@ -65,10 +65,6 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check index.js && node --check client.js && node --check lib/config.js && node --check lib/curator.js && node --check lib/digest.js && node --check lib/inject.js && node --check lib/paths.js && node --check lib/redact.js && node --check lib/store.js",
-    "prepublishOnly": "npm test && npm run check"
-  },
-  "publishConfig": {
-    "access": "public"
+    "check": "node --check index.js && node --check client.js && node --check lib/config.js && node --check lib/curator.js && node --check lib/digest.js && node --check lib/inject.js && node --check lib/paths.js && node --check lib/redact.js && node --check lib/store.js"
   }
 }

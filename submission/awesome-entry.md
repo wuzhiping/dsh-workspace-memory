@@ -1,11 +1,11 @@
 # Ready-to-paste listing entries
 
-The canonical repository is `Libraqg/dsh-workspace-memory`; replace the owner if it moves.
+The canonical repository is `wuzhiping/dsh-workspace-memory`; replace the owner if it moves.
 
 ## Awesome DSH Plugin — Memory category
 
 ```markdown
-- [Libraqg/dsh-workspace-memory](https://github.com/Libraqg/dsh-workspace-memory) - Explicit, user-triggered project memory for DSH: one confirmed model call curates earlier conversations into a bounded brief and injects it after the first message of a new conversation; no background capture or silent model calls.
+- [wuzhiping/dsh-workspace-memory](https://github.com/wuzhiping/dsh-workspace-memory) - Explicit, user-triggered project memory for DSH: one confirmed model call curates earlier conversations into a bounded brief and injects it after the first message of a new conversation; no background capture or silent model calls.
 ```
 
 ## One-line repository description
@@ -29,7 +29,7 @@ Explicit, project-scoped memory handoff for DeepSeek Harness — one confirmed m
 - 零原生依赖，纯本地文件
 - 失败不注入、不自动重试
 
-开源 MIT：https://github.com/Libraqg/dsh-workspace-memory
+开源 MIT：https://github.com/wuzhiping/dsh-workspace-memory
 
 演示视频见仓库 README。它不是通用记忆 OS；如果你要自动召回/向量检索，MemOS 的 DSH 适配器更合适。这个插件解决的是“我明确想交接时才交接，且成本可见”。
 ```

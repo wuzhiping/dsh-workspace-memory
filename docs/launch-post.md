@@ -27,13 +27,13 @@
 - **notes 不被改写**：`notes.md` 原样插入；整理模型被明确要求不要改写。
 - **零原生依赖**：纯 Node.js ESM，没有 SQLite/ONNX/embedding 下载，没有 build script 审批；存储只是几个本地文件。
 - **失败就失败，不偷偷重试**：失败、超时、输出不合格：报错，不注入，不换模型，不自动降级。
-- **可审计**：brief、notes、state 在 `~/.dsh/workspace-memory/`；侧边栏面板可查看、编辑、重置。
+- **可审计**：brief、notes、state 在 `~/.dsh/workspace-memory/`；输入框下方的「记忆」图标可查看、编辑、重置。
 - **中英双语 UI**：确认层和面板跟随 DSH locale。
 
 ## 安装
 
 ```bash
-dsh plugin --profile desktop add @libraqg/dsh-workspace-memory
+dsh plugin --profile desktop add dsh-workspace-memory
 ```
 
 Web profile 把 `desktop` 换成 `web`。安装后重启 DSH profile，刷新页面。
@@ -50,7 +50,7 @@ Web profile 把 `desktop` 换成 `web`。安装后重启 DSH profile，刷新页
 
 ## 链接
 
-- 仓库：<https://github.com/Libraqg/dsh-workspace-memory>
+- 仓库：<https://github.com/wuzhiping/dsh-workspace-memory>
 - 演示：仓库 README 中的 GIF / MP4
 - 许可证：MIT
 

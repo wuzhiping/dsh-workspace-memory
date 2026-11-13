@@ -2,7 +2,7 @@
 
 中文逐步说明（创建 GitHub 仓库、推送、添加 topic、提交 Hub）: [github-publish.zh.md](github-publish.zh.md)
 
-This repository is ready to be published as a public GitHub repository and submitted to the DSH plugin ecosystem. The canonical GitHub owner is `Libraqg`; replace it if the repository moves.
+This repository is ready to be published as a public GitHub repository and submitted to the DSH plugin ecosystem. The canonical GitHub owner is `wuzhiping`; replace it if the repository moves.
 
 ## 1. Create the public repository
 
@@ -32,16 +32,16 @@ The first topic is the one DSH plugin indexers look for. Do not omit it.
 cd dsh-workspace-memory
 git init
 git add .
-git commit -m "Initial release: @libraqg/dsh-workspace-memory 0.1.1"
+git commit -m "Initial release: dsh-workspace-memory 0.1.1"
 git branch -M main
-git remote add origin git@github.com:Libraqg/dsh-workspace-memory.git
+git remote add origin git@github.com:wuzhiping/dsh-workspace-memory.git
 git push -u origin main
 ```
 
 If you use HTTPS instead of SSH:
 
 ```bash
-git remote add origin https://github.com/Libraqg/dsh-workspace-memory.git
+git remote add origin https://github.com/wuzhiping/dsh-workspace-memory.git
 ```
 
 ## 3. Verify the install command
@@ -49,8 +49,8 @@ git remote add origin https://github.com/Libraqg/dsh-workspace-memory.git
 On a clean DSH profile, run the exact command from the README:
 
 ```bash
-dsh plugin --profile web add github:Libraqg/dsh-workspace-memory
-dsh plugin --profile desktop add github:Libraqg/dsh-workspace-memory
+dsh plugin --profile web add github:wuzhiping/dsh-workspace-memory
+dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 If `dsh` is not on `PATH`, use `npx --yes @deepseek-ai/dsh plugin ...` with the same arguments.
@@ -60,14 +60,14 @@ Then restart the profile, refresh the Web UI, and verify:
 - the **Inject memory** button appears on a blank non-first conversation in a project with content;
 - the confirmation layer shows sources, model, and token estimates;
 - confirming performs exactly one model call and the button moves to the waiting state;
-- the sidebar **Memory** panel opens and reads the project state;
+- the **Memory** icon under the input box opens the panel and reads the project state;
 - `dsh --profile desktop --dump-config` includes the `workspace-memory` row.
 
 If your default profile is `web`, substitute `--profile web` in the README and test both profiles if you can.
 
 ## 4. Submit to DSH Plugin Hub
 
-The repository already exists at <https://github.com/Libraqg/dsh-workspace-memory>. If you are starting from a fresh clone, skip the repository-creation steps and push `main` + tags.
+The repository already exists at <https://github.com/wuzhiping/dsh-workspace-memory>. If you are starting from a fresh clone, skip the repository-creation steps and push `main` + tags.
 
 The Hub auto-scans public repositories. Submission is free. A ready-to-submit issue (title, body, checklist) is in [submission/dsh-plugin-hub.md](../submission/dsh-plugin-hub.md).
 
@@ -88,43 +88,8 @@ Before opening the PR, check the list's current contribution guide:
 
 Keep the entry to one line: link + a factual description of what it does. Do not claim "official" or benchmark results you cannot show.
 
-## 6. Publish to npm (required for the in-DSH Plugin Center)
 
-`@libraqg/dsh-workspace-memory@0.1.2` is published on npm. The in-DSH Plugin Center requires an npm package, so the package now qualifies. For a new release, bump the version and publish again:
-
-1. Sign in to npm and confirm the scope. The package name is `@libraqg/dsh-workspace-memory`; the npm account or organization must own `@libraqg`. If not, change the package name and the matching identities (`cordis.patch.yml` row name, `client.js` module id, test expectation, README commands).
-2. ```bash
-   npm login
-   npm whoami
-   npm view @libraqg/dsh-workspace-memory version
-   ```
-   A 404 on `npm view` means the name is available.
-3. Inspect the tarball:
-   ```bash
-   npm pack --dry-run
-   ```
-   It should include `index.js`, `client.js`, `lib/`, `locale/`, `cordis.patch.yml`, `icon.svg`, `assets/*.png`, `assets/demo.gif`, README, and LICENSE. It must not include the 24-second MP4, the `.mov` recording, tests, or `node_modules`.
-4. Publish:
-   ```bash
-   npm publish --access public
-   ```
-   If 2FA is enabled, add `--otp=123456`.
-5. Verify and install:
-   ```bash
-   npm view @libraqg/dsh-workspace-memory version
-   dsh plugin --profile web add @libraqg/dsh-workspace-memory
-   dsh plugin --profile desktop add @libraqg/dsh-workspace-memory
-   ```
-6. Bump versions for future releases:
-   ```bash
-   npm version patch   # or minor/major
-   npm publish --access public
-   git push --follow-tags
-   ```
-
-`package.json` already has `publishConfig.access: public` and `prepublishOnly: npm test && npm run check`, so a broken test or syntax error blocks publication.
-
-## 7. Release checklist
+## 6. Release checklist
 
 - [ ] `npm test` passes.
 - [ ] `npm run check` passes.
@@ -136,6 +101,6 @@ Keep the entry to one line: link + a factual description of what it does. Do not
 - [ ] `cordis.patch.yml` defaults are intentional.
 - [ ] Tag `v0.1.0` and publish a GitHub Release with the MP4 as an optional asset.
 
-## 8. What not to claim
+## 7. What not to claim
 
 This plugin is intentionally not a general memory OS. Do not describe it as automatic recall, background memory, vector search, or a MemOS replacement. Its differentiator is the opposite: explicit consent, one call, project scope, zero native dependencies, and no silent model calls.

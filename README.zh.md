@@ -3,14 +3,13 @@
   <h1>dsh-workspace-memory</h1>
   <p><strong>为 DeepSeek Harness 提供“显式、项目级”的记忆交接。</strong><br/>
   一次确认，一次模型调用，没有静默后台调用。</p>
-  <p><strong>分类：</strong> 记忆与上下文 · <strong>许可证：</strong> MIT · <strong>安装：</strong> npm 0.1.2 / GitHub 源码</p>
+  <p><strong>分类：</strong> 记忆与上下文 · <strong>许可证：</strong> MIT · <strong>安装：</strong> GitHub 源码</p>
   <p><a href="README.md">English</a> | 中文</p>
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
     <img src="https://img.shields.io/badge/DSH-%3E%3D0.2.1--rc.2-6f42c1" alt="DSH >= 0.2.1-rc.2">
     <img src="https://img.shields.io/badge/node-%3E%3D22.19-339933" alt="Node >= 22.19">
-    <a href="https://www.npmjs.com/package/@libraqg/dsh-workspace-memory"><img src="https://img.shields.io/npm/v/@libraqg/dsh-workspace-memory.svg" alt="npm"></a>
-    <a href="https://dsh-plugin.org/plugins/libraqg/dsh-workspace-memory"><img src="https://dsh-plugin.org/badges/listed.svg" alt="Listed on dsh-plugin.org"></a>
+    <a href="https://dsh-plugin.org/plugins/wuzhiping/dsh-workspace-memory"><img src="https://dsh-plugin.org/badges/listed.svg" alt="Listed on dsh-plugin.org"></a>
     <a href="https://github.com/awesome-dsh-plugin/awesome-dsh-plugin"><img src="https://awesome-dsh-plugin.com/badge.svg" alt="DSH plugin"></a>
   </p>
 </div>
@@ -20,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Libraqg/dsh-workspace-memory/blob/main/assets/demo.mp4">观看完整 24 秒演示（MP4）</a>
+  <a href="https://github.com/wuzhiping/dsh-workspace-memory/blob/main/assets/demo.mp4">观看完整 24 秒演示（MP4）</a>
 </p>
 
 ## 它解决什么问题
@@ -46,7 +45,7 @@
 | **你的 notes 不被改写** | `notes.md` 原样插入；整理模型被明确要求不改写 notes。 |
 | **零原生依赖** | 纯 Node.js ESM，没有 SQLite/ONNX/embedding 模型下载，没有 build script 审批；存储只是几个纯文本文件。 |
 | **失败就失败，不偷偷重试** | 整理失败、超时、输出不合格：报错，不注入，不自动换模型，不自动降级。 |
-| **可审计** | brief、notes、state 都在 `~/.dsh/workspace-memory/`；侧边栏面板可查看、编辑 notes、设置整理路由、重置项目记忆。 |
+| **可审计** | brief、notes、state 都在 `~/.dsh/workspace-memory/`；输入框下方的**记忆**图标可查看、编辑 notes、设置整理路由、重置项目记忆。 |
 | **中英双语 UI** | 默认跟随 DSH locale；确认层有 中文/EN 切换并本地记忆，面板跟随同一选择。 |
 
 ## 工作方式
@@ -86,42 +85,19 @@
 - Node.js `>=22.19.0`。
 - 一个可用的 DSH 模型路由。默认整理模型 = 当前对话模型，也可以按项目覆盖。
 
-### 从 npm 安装
-
-npm 包名是 `@libraqg/dsh-workspace-memory`：
-
-```bash
-dsh plugin --profile web add @libraqg/dsh-workspace-memory
-```
-
-Desktop profile：
-
-```bash
-dsh plugin --profile desktop add @libraqg/dsh-workspace-memory
-```
-
-Desktop 应用里 `dsh` 通常不在 PATH，可以用已发布的 CLI 运行：
-
-```bash
-npx --yes @deepseek-ai/dsh plugin --profile desktop add @libraqg/dsh-workspace-memory
-```
-
-因为已经发布到 npm，它符合 DSH 内置插件中心“一条命令安装”的条件。
-
-如果你不想用 npm，也可以用下面的 GitHub 源码安装作为备用。
 
 ### 从 GitHub 安装
 
 Web profile：
 
 ```bash
-dsh plugin --profile web add github:Libraqg/dsh-workspace-memory
+dsh plugin --profile web add github:wuzhiping/dsh-workspace-memory
 ```
 
 Desktop profile：
 
 ```bash
-dsh plugin --profile desktop add github:Libraqg/dsh-workspace-memory
+dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 把 `web` / `desktop` 换成你实际使用的 profile。安装后重启 DSH profile，并刷新 Web 页面。
@@ -129,14 +105,14 @@ dsh plugin --profile desktop add github:Libraqg/dsh-workspace-memory
 ### 从本地目录安装
 
 ```bash
-git clone https://github.com/Libraqg/dsh-workspace-memory.git
+git clone https://github.com/wuzhiping/dsh-workspace-memory.git
 dsh plugin --profile desktop add "$PWD/dsh-workspace-memory"
 ```
 
 Desktop 应用里如果 `dsh` 不在 PATH，可在 **设置 → 插件 → 安装** 里选择 GitHub 地址或本地目录，或运行：
 
 ```bash
-npx --yes @deepseek-ai/dsh plugin --profile desktop add github:Libraqg/dsh-workspace-memory
+npx --yes @deepseek-ai/dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 不需要原生依赖，也不需要 build script 审批。
@@ -149,7 +125,7 @@ npx --yes @deepseek-ai/dsh plugin --profile desktop add github:Libraqg/dsh-works
 4. 点击后先出现确认层，此时还没有调用模型。
 5. 核对来源、整理模型、输入/输出/注入估算和隐私提示，点 **整理并注入**。
 6. 按钮变成 **等待你发送第一条消息**。发出第一条消息后，brief 会插到消息之后，随正常请求发送。
-7. 侧边栏“记忆”面板可查看 brief、编辑 notes、设置项目级整理模型、重置项目记忆。
+7. 点击输入框下方的**记忆**图标，可查看 brief、编辑 notes、设置项目级整理模型、重置项目记忆。
 
 当 Hero 座位不可用时，右下角会出现浮动的“注入记忆”兜底按钮。
 
