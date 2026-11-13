@@ -55,6 +55,7 @@ test('client bundle registers hero, composer and dock entries', async () => {
     'conversation.hero.options',
     'conversation.input.overlay',
     'conversation.input.right',
+    'shell.overlay',
   ])
 
   // The plugin no longer claims a slot in the app's navigation rail.
@@ -146,40 +147,52 @@ test('the memory dock opens its panel as a modal', async () => {
   app.apply(ctx)
 
   const trigger = registrations.find((entry) => entry.options.name === 'conversation.input.right')
+  const modal = registrations.find((entry) => entry.options.name === 'shell.overlay')
+  assert.ok(modal, 'the modal is registered on the frame-wide overlay layer')
+  assert.equal(modal.options.id, 'workspace-memory-modal')
 
-  // The mock does not re-render on a state change, so the entry is rendered
-  // again after the click to observe the open state.
-  const render = () => {
+  const renderTrigger = () => {
     created.length = 0
-    trigger.component({ sessionId: 'session-1' })
+    trigger.component({})
+  }
+  const renderModal = () => {
+    created.length = 0
+    modal.component({})
   }
 
-  render()
+  renderTrigger()
   const button = created.find((element) => element.type === 'button')
-  assert.ok(button, 'the dock entry renders a button')
+  assert.ok(button, 'the trigger renders a button')
   assert.equal(button.props['aria-haspopup'], 'dialog')
   assert.equal(button.props['aria-expanded'], false)
 
-  // Opening the panel renders a modal dialog.
-  button.props.onClick()
-  assert.equal(state, true, 'the click opens the panel')
+  // Nothing renders on the overlay layer before the trigger is used.
+  renderModal()
+  assert.equal(created.length, 0, 'the overlay stays empty while closed')
 
-  render()
+  button.props.onClick()
+
+  renderTrigger()
+  assert.equal(created.find((element) => element.type === 'button').props['aria-expanded'], true)
+
+  renderModal()
   const dialog = created.find((element) => element.props?.role === 'dialog')
-  assert.ok(dialog, 'the panel renders a dialog element')
+  assert.ok(dialog, 'the open modal renders a dialog element')
   assert.equal(dialog.props['aria-modal'], true)
   assert.equal(dialog.props['aria-label'], '工作区记忆')
 
-  // The modal sits on a fixed, centred backdrop.
+  // The modal sits on a fixed, centred backdrop that opts into pointer events.
   const backdrop = created.find(
     (element) => element.props?.role === 'presentation' && element.props?.style?.position === 'fixed',
   )
   assert.ok(backdrop, 'the dialog renders on a fixed backdrop')
   assert.equal(backdrop.props.style.zIndex, 10050)
+  assert.equal(backdrop.props.style.pointerEvents, 'auto')
 
   // Clicking the backdrop dismisses the panel.
   backdrop.props.onMouseDown({ target: backdrop, currentTarget: backdrop })
-  assert.equal(state, false, 'clicking the backdrop closes the panel')
+  renderModal()
+  assert.equal(created.length, 0, 'clicking the backdrop closes the panel')
 })
 
 test('client copy follows a Traditional Chinese host locale', async () => {

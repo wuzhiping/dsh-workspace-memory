@@ -894,90 +894,127 @@ window.__ModuleLoader__.load({
       '.wm-trigger[aria-expanded="true"]{color:var(--dsw-alias-brand-primary)}',
     ].join('')
 
+    // The trigger and the modal are separate slot registrations, so the open
+    // state lives here rather than in one component's state.
+    let memoryModalOpen = false
+    const memoryModalListeners = new Set()
+
+    function setMemoryModal(open) {
+      const next = open === true
+      if (memoryModalOpen === next) return
+      memoryModalOpen = next
+      for (const listener of memoryModalListeners) listener()
+    }
+
+    function useMemoryModal() {
+      return React.useSyncExternalStore(
+        (listener) => {
+          memoryModalListeners.add(listener)
+          return () => memoryModalListeners.delete(listener)
+        },
+        () => memoryModalOpen,
+      )
+    }
+
     /**
      * The memory trigger: a compact icon in the composer's control row, placed
-     * just before the progress-narration trigger, and it opens the memory panel
-     * as a modal. It replaces the former sidebar entry, so the plugin keeps its
-     * own surface without claiming a slot in the app's navigation rail.
+     * just before the progress-narration trigger. It only opens the modal; the
+     * modal itself is a separate `shell.overlay` entry, because the composer's
+     * subtree is a stacking context and would paint the dialog under the
+     * conversation.
      */
-    function MemoryDockEntry(props) {
+    function MemoryDockEntry() {
       const strings = stringsFor(useLanguage())
-      const [open, setOpen] = React.useState(false)
-      const sessionId = props.sessionId
+      const open = useMemoryModal()
+
+      return h(
+        React.Fragment,
+        null,
+        h('style', null, TRIGGER_CSS),
+        h(
+          'button',
+          {
+            type: 'button',
+            className: 'wm-trigger',
+            'aria-expanded': open,
+            'aria-haspopup': 'dialog',
+            'aria-label': strings.panelTitle,
+            title: strings.panelTitle,
+            onClick: () => setMemoryModal(true),
+          },
+          h(Icon, { size: 16 }),
+        ),
+      )
+    }
+
+    /**
+     * The memory panel as a modal, registered on the frame-wide overlay layer:
+     * above every column, outside their scroll containers, so nothing in the
+     * conversation can paint over it. The layer is click-through, so the
+     * backdrop opts back into pointer events.
+     */
+    function MemoryModal(props) {
+      const strings = stringsFor(useLanguage())
+      const open = useMemoryModal()
 
       React.useEffect(() => {
         if (!open) return undefined
         const onKey = (event) => {
-          if (event.key === 'Escape') setOpen(false)
+          if (event.key === 'Escape') setMemoryModal(false)
         }
         window.addEventListener('keydown', onKey)
         return () => window.removeEventListener('keydown', onKey)
       }, [open])
 
-      const button = h(
-        'button',
+      if (!open) return null
+
+      return h(
+        'div',
         {
-          type: 'button',
-          className: 'wm-trigger',
-          'aria-expanded': open,
-          'aria-haspopup': 'dialog',
-          'aria-label': strings.panelTitle,
-          title: strings.panelTitle,
-          onClick: () => setOpen(true),
+          role: 'presentation',
+          onMouseDown: (event) => {
+            if (event.target === event.currentTarget) setMemoryModal(false)
+          },
+          style: {
+            position: 'fixed',
+            inset: 0,
+            zIndex: 10050,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,.42)',
+            padding: 16,
+            boxSizing: 'border-box',
+            pointerEvents: 'auto',
+            // The dialog scrolls internally; the backdrop never scrolls.
+            overflow: 'hidden',
+            overscrollBehavior: 'contain',
+          },
         },
-        h(Icon, { size: 16 }),
-      )
-
-      const modalNode = open
-        ? h(
-            'div',
-            {
-              role: 'presentation',
-              onMouseDown: (event) => {
-                if (event.target === event.currentTarget) setOpen(false)
-              },
-              style: {
-                position: 'fixed',
-                inset: 0,
-                zIndex: 10050,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(0,0,0,.42)',
-                padding: 16,
-                boxSizing: 'border-box',
-                // The dialog scrolls internally; the backdrop never scrolls.
-                overflow: 'hidden',
-                overscrollBehavior: 'contain',
-              },
+        h(
+          'div',
+          {
+            role: 'dialog',
+            'aria-modal': true,
+            'aria-label': strings.panelTitle,
+            style: {
+              width: 720,
+              maxWidth: 'calc(100vw - 32px)',
+              maxHeight: 'calc(100vh - 32px)',
+              boxSizing: 'border-box',
+              overflowY: 'auto',
+              overscrollBehavior: 'contain',
+              borderRadius: 13,
+              border: '1px solid var(--dsw-alias-border-l2)',
+              background: 'var(--dsw-alias-bg-overlay)',
+              color: 'var(--dsw-alias-label-primary)',
+              boxShadow: '0 24px 64px rgba(0,0,0,.28)',
+              padding: 20,
             },
-            h(
-              'div',
-              {
-                role: 'dialog',
-                'aria-modal': true,
-                'aria-label': strings.panelTitle,
-                style: {
-                  width: 720,
-                  maxWidth: 'calc(100vw - 32px)',
-                  maxHeight: 'calc(100vh - 32px)',
-                  boxSizing: 'border-box',
-                  overflowY: 'auto',
-                  overscrollBehavior: 'contain',
-                  borderRadius: 13,
-                  border: '1px solid var(--dsw-alias-border-l2)',
-                  background: 'var(--dsw-alias-bg-overlay)',
-                  color: 'var(--dsw-alias-label-primary)',
-                  boxShadow: '0 24px 64px rgba(0,0,0,.28)',
-                  padding: 20,
-                },
-              },
-              h(MemoryPanel, { ...props, sessionId, onClose: () => setOpen(false) }),
-            ),
-          )
-        : null
-
-      return h(React.Fragment, null, h('style', null, TRIGGER_CSS), button, modalNode)
+          },
+          h(MemoryPanel, { ...props, onClose: () => setMemoryModal(false) }),
+        ),
+      )
     }
 
     function MemoryPanel(props) {
@@ -1512,6 +1549,18 @@ window.__ModuleLoader__.load({
               order: 39,
             },
             MemoryDockEntry,
+          ),
+        )
+        // The panel renders on the frame-wide overlay layer rather than inside
+        // the composer, so the conversation never paints over it.
+        ctx.slots.inject('shell.overlay', () =>
+          ctx.slots.register(
+            {
+              name: 'shell.overlay',
+              id: 'workspace-memory-modal',
+              order: 70,
+            },
+            MemoryModal,
           ),
         )
       },
