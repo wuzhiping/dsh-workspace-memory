@@ -111,7 +111,7 @@ The client bundle registers:
 
 - `conversation.hero.options` — the primary **Inject memory** button on a blank project conversation;
 - `shell.overlay` — a fixed fallback button when the Hero seat is not rendered;
-- `conversation.input.dock` — the **Memory** icon under the input box, which opens the panel as a modal.
+- `conversation.input.right` — the **Memory** icon in the composer control row (order 39, just left of the progress-narration trigger at 40), which opens the panel as a modal.
 
 The button first calls `inject-status` (local). If a source/model exists, it shows the button and a tooltip. Clicking opens the confirmation dialog with sources, model, input estimate, output limit, injection estimate, and a privacy note. Confirming calls `inject --confirm` with the token. The button then shows **Waiting for your first message**.
 

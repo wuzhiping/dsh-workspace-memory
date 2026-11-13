@@ -5,7 +5,7 @@
 - Renamed the bundle from `@libraqg/dsh-workspace-memory` to `dsh-workspace-memory` (`package.json`, `cordis.patch.yml` row, client module id, Host `export const name`).
 - The GitHub owner is now `wuzhiping`; repository, homepage, and issue links updated.
 - Dropped the npm distribution path: no registry package, no npm install instructions, no `publishConfig`/`prepublishOnly`.
-- Moved the client UI out of the sidebar: the plugin no longer registers `sidebar.panellist` or `main`. A **Memory** icon now sits under the input box (`conversation.input.dock`) and opens the same panel as a modal.
+- Moved the client UI out of the sidebar: the plugin no longer registers `sidebar.panellist` or `main`. A **Memory** icon now sits in the composer control row (`conversation.input.right`, beside the progress-narration trigger) and opens the same panel as a modal.
 - No Host-side runtime behavior change.
 ## 0.1.2 — 2026-10-26
 

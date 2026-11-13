@@ -45,7 +45,7 @@ This plugin does one narrow thing:
 | **Your notes stay yours** | Pinned `notes.md` are inserted verbatim. The curator model is told not to rewrite them and is not allowed to replace them. |
 | **Zero native dependencies** | Pure Node.js ESM. No SQLite, no ONNX runtime, no embedding model download, no build-script approval. The stored state is a few plain files. |
 | **Fail closed, no surprise retry** | If the curator route fails, times out, or returns an invalid brief, the plugin reports the error and injects nothing. It does not silently retry, switch models, or fall back to another call. |
-| **Auditable by design** | `brief.md`, `notes.md`, and `state.json` live under `~/.dsh/workspace-memory/`. The **Memory** icon under the input box opens the same view: brief, notes, sources, last model usage, and the storage path; you can reset a project's memory at any time. |
+| **Auditable by design** | `brief.md`, `notes.md`, and `state.json` live under `~/.dsh/workspace-memory/`. The **Memory** icon in the composer's control row opens the same view in a modal: brief, notes, sources, last model usage, and the storage path; you can reset a project's memory at any time. |
 | **Bilingual UI** | Defaults to the DSH locale; the confirmation layer has a 中文/EN toggle persisted locally, and the panel follows the same choice. |
 
 ## How it works
@@ -152,7 +152,7 @@ No native dependencies or build scripts are required.
 4. Click it. The confirmation layer appears; nothing has been sent to a model yet.
 5. Review the source conversations, model route, input/output/injection estimates, and the privacy note. Click **Curate and inject**.
 6. The button changes to **Waiting for your first message**. Send your first message; the brief is inserted after it and travels with that normal request.
-7. Click the **Memory** icon under the input box to open the memory panel in a modal, where you can view the brief, edit your notes, set a project-level curator route, or reset the project's memory.
+7. Click the **Memory** icon in the composer's control row (beside the progress-narration icon) to open the memory panel in a modal, where you can view the brief, edit your notes, set a project-level curator route, or reset the project's memory.
 
 The plugin also provides a floating fallback button in the lower-right corner when the conversation hero seat is unavailable.
 

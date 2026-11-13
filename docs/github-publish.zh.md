@@ -91,7 +91,7 @@ dsh plugin --profile desktop add github:YOUR_NAME/dsh-workspace-memory
 - 新空白对话出现 **注入记忆**；
 - 确认层显示来源、模型、token 估算；
 - 确认后只调用一次模型；
-- 输入框下方的 **记忆** 图标可打开面板。
+- 输入框工具行里的 **记忆** 图标可打开面板。
 
 如果 `dsh` 不在 PATH，可在 DSH 的 **设置 → 插件 → 安装** 里填 GitHub 地址。
 

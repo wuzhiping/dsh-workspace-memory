@@ -60,7 +60,7 @@ Then restart the profile, refresh the Web UI, and verify:
 - the **Inject memory** button appears on a blank non-first conversation in a project with content;
 - the confirmation layer shows sources, model, and token estimates;
 - confirming performs exactly one model call and the button moves to the waiting state;
-- the **Memory** icon under the input box opens the panel and reads the project state;
+- the **Memory** icon in the composer control row opens the panel and reads the project state;
 - `dsh --profile desktop --dump-config` includes the `workspace-memory` row.
 
 If your default profile is `web`, substitute `--profile web` in the README and test both profiles if you can.
