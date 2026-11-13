@@ -86,18 +86,24 @@
 - 一个可用的 DSH 模型路由。默认整理模型 = 当前对话模型，也可以按项目覆盖。
 
 
-### 从 GitHub 安装
+### 安装
 
-Web profile：
+插件放在一个 Git 仓库里，按 Git 地址安装：
 
 ```bash
-dsh plugin --profile web add github:wuzhiping/dsh-workspace-memory
+npx --yes @deepseek-ai/dsh plugin --profile web add "git+https://git.feg.cn/shawoo/dsh-workspace-memory"
 ```
 
 Desktop profile：
 
 ```bash
-dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
+npx --yes @deepseek-ai/dsh plugin --profile desktop add "git+https://git.feg.cn/shawoo/dsh-workspace-memory"
+```
+
+如果 `dsh` 命令已经在 PATH 上，可以去掉 `npx`：
+
+```bash
+dsh plugin --profile web add "git+https://git.feg.cn/shawoo/dsh-workspace-memory"
 ```
 
 把 `web` / `desktop` 换成你实际使用的 profile。安装后重启 DSH profile，并刷新 Web 页面。
@@ -105,14 +111,8 @@ dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ### 从本地目录安装
 
 ```bash
-git clone https://github.com/wuzhiping/dsh-workspace-memory.git
+git clone https://git.feg.cn/shawoo/dsh-workspace-memory.git
 dsh plugin --profile desktop add "$PWD/dsh-workspace-memory"
-```
-
-Desktop 应用里如果 `dsh` 不在 PATH，可在 **设置 → 插件 → 安装** 里选择 GitHub 地址或本地目录，或运行：
-
-```bash
-npx --yes @deepseek-ai/dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 不需要原生依赖，也不需要 build script 审批。

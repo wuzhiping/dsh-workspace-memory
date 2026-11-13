@@ -113,18 +113,24 @@ Verify against the files before acting.
 - A working DSH model route. The default curator uses the current conversation's model; you can override it per project.
 
 
-### Install from GitHub
+### Install
 
-Web profile:
+The plugin lives in a Git repository. Install it by its Git URL:
 
 ```bash
-dsh plugin --profile web add github:wuzhiping/dsh-workspace-memory
+npx --yes @deepseek-ai/dsh plugin --profile web add "git+https://git.feg.cn/shawoo/dsh-workspace-memory"
 ```
 
 Desktop profile:
 
 ```bash
-dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
+npx --yes @deepseek-ai/dsh plugin --profile desktop add "git+https://git.feg.cn/shawoo/dsh-workspace-memory"
+```
+
+If the `dsh` command is on your `PATH`, the same install works without `npx`:
+
+```bash
+dsh plugin --profile web add "git+https://git.feg.cn/shawoo/dsh-workspace-memory"
 ```
 
 Use the profile name that matches your DSH installation. Restart the DSH profile after installation, then refresh the Web UI.
@@ -132,14 +138,8 @@ Use the profile name that matches your DSH installation. Restart the DSH profile
 ### Install from a local checkout
 
 ```bash
-git clone https://github.com/wuzhiping/dsh-workspace-memory.git
+git clone https://git.feg.cn/shawoo/dsh-workspace-memory.git
 dsh plugin --profile desktop add "$PWD/dsh-workspace-memory"
-```
-
-If the `dsh` command is not on your `PATH` in the Desktop app, use **Settings → Plugins → Install** with the repository URL or local directory, or run:
-
-```bash
-npx --yes @deepseek-ai/dsh plugin --profile desktop add github:wuzhiping/dsh-workspace-memory
 ```
 
 No native dependencies or build scripts are required.
