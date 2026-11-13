@@ -6,6 +6,8 @@
 - The GitHub owner is now `wuzhiping`; repository, homepage, and issue links updated.
 - Dropped the npm distribution path: no registry package, no npm install instructions, no `publishConfig`/`prepublishOnly`.
 - Moved the client UI out of the sidebar: the plugin no longer registers `sidebar.panellist` or `main`. A **Memory** icon now sits in the composer control row (`conversation.input.right`, beside the progress-narration trigger) and opens the same panel as a modal.
+- The modal renders on the frame-wide overlay layer (`shell.overlay`) instead of inside the composer card, so the conversation cannot paint over it. It scrolls internally: the backdrop never scrolls and no ancestor gains a scrollbar.
+- Traditional Chinese (`zh-TW`) copy, following `zh-TW`/`zh-HK`/`zh-MO`/`zh-Hant` host locales.
 - No Host-side runtime behavior change.
 ## 0.1.2 — 2026-10-26
 
